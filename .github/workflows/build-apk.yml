@@ -26,10 +26,14 @@ jobs:
         with:
           distribution: temurin
           java-version: '17'
-      - name: Set up Android SDK
-        uses: android-actions/setup-android@v3
       - name: Install Android SDK API 36
-        run: sdkmanager "platforms;android-36" "build-tools;36.0.0"
+        shell: bash
+        run: |
+          echo "Android SDK: $ANDROID_HOME"
+          SDKMANAGER=$(find "$ANDROID_HOME/cmdline-tools" -name sdkmanager -type f | head -n 1)
+          test -x "$SDKMANAGER" || { echo "sdkmanager missing"; exit 1; }
+          yes | "$SDKMANAGER" --licenses >/dev/null || true
+          "$SDKMANAGER" --install "platforms;android-36" "build-tools;36.0.0"
       - name: Build debug APK
         uses: gradle/actions/setup-gradle@v4
       - name: Run Gradle assembleDebug
